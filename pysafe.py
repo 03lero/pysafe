@@ -1,5 +1,4 @@
 import os
-import os.path
 from os import path
 from cryptography.fernet import Fernet
 import string
@@ -28,16 +27,29 @@ def ui():
     menu.show()
 
 def main():
-    if path.exists(".salt") == False:
+    global maindir 
+    global saltloc
+    global entrydir
+
+    maindir = os.path.join(os.path.expanduser('~'), '.pysafe')
+    saltloc = os.path.join(maindir, '.salt')
+    entrydir = os.path.join(maindir, 'entries')
+    
+    if os.path.isdir(maindir) == False:
+        os.mkdir(maindir)
+
+    if os.path.isdir(entrydir) == False:
+        os.mkdir(entrydir)
+
+    if os.path.exists(saltloc) == False:
         gen()
-    if os.path.isdir(".entries") == False:
-        os.mkdir(".entries")
+  
     ferinit()
     ui()
 
 def new():
     fname = input("Type a filename for the new entry.\n> ")
-    filename = '.entries/' + fname
+    filename = os.path.join(entrydir, fname)
     os.system("nano %s" % filename)
     with open(filename, "rb") as file:
         file_data = file.read()
@@ -48,8 +60,9 @@ def new():
     input("Type any key to proceed...")
 
 def decrypt():
+    print("Saved entries:\n", '\n'.join(os.listdir(entrydir)))
     fname = input("Enter a filename to decrypt\n> ")
-    filename = '.entries/' + fname
+    filename = os.path.join(entrydir, fname)
     with open(filename, "rb") as file:
         encrypted_data = file.read()
     decrypted_data = fkey.decrypt(encrypted_data)
@@ -59,19 +72,26 @@ def decrypt():
     input("Type any key to proceed...")
 
 def encrypt():
-    fname = input("Enter a filename to encrypt\n> ")
-    filename = '.entries/' + fname
+    while True:
+        filename = input("Enter a filename to encrypt\n- Original file will be deleted\n- Include extension if applicable\n- Specify path if not in this directory\n> ")
+        if os.path.exists(filename) == False:
+            print("File does not exist")
+            continue
+        break
+
     with open(filename, "rb") as file:
         file_data = file.read()
+    writename = os.path.join(entrydir, filename)
     encrypted_data = fkey.encrypt(file_data)
-    with open(filename, "wb") as file:
+
+    with open(writename, "wb") as file:
         file.write(encrypted_data)
     print("\nSuccess. Data encrypted!")
     input("Type any key to proceed...")
 
 def read():
     fname = input("Enter a filename to read\n> ")
-    filename = '.entries/' + fname
+    filename = os.path.join(entrydir, fname)
     with open(filename, "rb") as file:
         encrypted_data = file.read()
     decrypted_data = fkey.decrypt(encrypted_data)
@@ -79,7 +99,7 @@ def read():
     input("Type any key to proceed...")
 
 def lister():
-    print("\n", os.listdir(".entries/"), "\n")
+    print("\n", os.listdir(entrydir), "\n")
     input("Type any key to proceed...")
 
 def gen():
@@ -102,14 +122,14 @@ def gen():
     
     letters = string.ascii_lowercase
     salt = ''.join(random.choice(letters) for i in range(tarlen))    
-    char = open('.salt', 'w')
+    char = open(saltloc, 'w')
     char.write(salt)
     
     print("Password generated.\nNever touch salt file or you will be locked out of your entries.\nProceeding...")
 
 def ferinit():
     global fkey
-    char = open('.salt', 'r')
+    char = open(saltloc, 'r')
     salt = char.read()
  
     while True:
