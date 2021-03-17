@@ -5,6 +5,27 @@ from cryptography.fernet import Fernet
 import string
 import random
 import base64
+from cursesmenu import *
+from cursesmenu.items import *
+
+def ui():
+    menu = CursesMenu("PySafe", "Main Menu")
+
+    f1 = FunctionItem("Create a new entry", new)
+    f2 = FunctionItem("Read an existing entry", read)
+    f3 = FunctionItem("Decrypt an existing entry", decrypt)
+    f4 = FunctionItem("Encrypt a decrypted/plaintext entry", encrypt)
+    f5 = FunctionItem("List saved entries", lister)
+    f6 = FunctionItem("Generate new password (you will lose access to all old entries)", gen)
+ 
+    menu.append_item(f1)    
+    menu.append_item(f2)
+    menu.append_item(f3)
+    menu.append_item(f4)
+    menu.append_item(f5)
+    menu.append_item(f6)
+
+    menu.show()
 
 def main():
     if path.exists(".salt") == False:
@@ -12,32 +33,10 @@ def main():
     if os.path.isdir(".entries") == False:
         os.mkdir(".entries")
     ferinit()
-    action()
+    ui()
 
-def action():
-    while True:
-        action = input("\nType 'new' to write a new encrypted entry.\nType 'read' to read an encrypted entry.\nType 'decrypt' to decrypt an old entry.\nType 'encrypt' to encrypt a decrypted/plaintext entry.\nType 'list' to see all saved entries.\n> ")
-        if action.lower() == 'new':
-            tnew = input("Type a filename for the new entry.\n> ")
-            new(tnew)
-        elif action.lower() == 'decrypt':
-            old = input("Enter a filename to decrypt\n> ")
-            decrypt(old)
-        elif action.lower() == 'encrypt':
-           existing = input("Enter a filename to encrypt.\n> ")
-           encrypt(existing)
-        elif action.lower() == 'read':
-            readf = input("Enter a filename to read.\n> ")
-            print("\n")
-            read(readf)
-        elif action.lower() == 'list':
-            print("\n", os.listdir(".entries/", "\n"))
-            continue
-        else:
-            print("Invalid entry.")
-            continue
-
-def new(fname):
+def new():
+    fname = input("Type a filename for the new entry.\n> ")
     filename = '.entries/' + fname
     os.system("nano %s" % filename)
     with open(filename, "rb") as file:
@@ -46,8 +45,10 @@ def new(fname):
     with open(filename, "wb") as file:
         file.write(encrypted_data)
     print("\nSuccess. New file encrypted!")
+    input("Type any key to proceed...")
 
-def decrypt(fname):
+def decrypt():
+    fname = input("Enter a filename to decrypt\n> ")
     filename = '.entries/' + fname
     with open(filename, "rb") as file:
         encrypted_data = file.read()
@@ -55,8 +56,10 @@ def decrypt(fname):
     with open(filename, "wb") as file:
         file.write(decrypted_data)
     print("\nSuccess!")
+    input("Type any key to proceed...")
 
-def encrypt(fname):
+def encrypt():
+    fname = input("Enter a filename to encrypt\n> ")
     filename = '.entries/' + fname
     with open(filename, "rb") as file:
         file_data = file.read()
@@ -64,14 +67,21 @@ def encrypt(fname):
     with open(filename, "wb") as file:
         file.write(encrypted_data)
     print("\nSuccess. Data encrypted!")
+    input("Type any key to proceed...")
 
-def read(fname):
+def read():
+    fname = input("Enter a filename to read\n> ")
     filename = '.entries/' + fname
     with open(filename, "rb") as file:
         encrypted_data = file.read()
     decrypted_data = fkey.decrypt(encrypted_data)
     print(decrypted_data.decode("utf-8"))
-    
+    input("Type any key to proceed...")
+
+def lister():
+    print("\n", os.listdir(".entries/"), "\n")
+    input("Type any key to proceed...")
+
 def gen():
     while True:
         entry = input("Create Password + Key\nIf you lose this passphrase, you will not be able to access your entries again.\n32 chars max, 10 char minimum\n> ")
