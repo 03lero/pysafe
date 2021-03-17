@@ -105,8 +105,8 @@ def lister():
 def gen():
     while True:
         entry = input("Create Password.\n- If you lose this passphrase, you will not be able to access your entries again\n- 32 character maximum, 10 character minimum\n- Must include letters and numbers\n> ")
-        if len(entry) < 10:
-            print("Password is too short. 10 characters minimum.")
+        if len(entry) < 12:
+            print("Password is too short. 12 characters minimum.")
             continue
         checkpass(entry)
         if alpha == False or numeric == False:
@@ -152,7 +152,7 @@ def ferinit():
     while True:
         login = input("Enter your password.\n> ")
         checkpass(login)
-        if len(login) < 10 or alpha == False or numeric == False :
+        if len(login) < 12 or alpha == False or numeric == False :
             print("Invalid entry.")
             continue
 
