@@ -74,7 +74,7 @@ def decrypt():
 def encrypt():
     while True:
         filename = input("Enter a filename to encrypt\n- Original file will be deleted\n- Include extension if applicable\n- Specify path if not in this directory\n> ")
-        if os.path.exists(filename) == False:
+        if os.path.exists(filename) != True:
             print("File does not exist")
             continue
         break
@@ -104,17 +104,18 @@ def lister():
 
 def gen():
     while True:
-        entry = input("Create Password + Key\nIf you lose this passphrase, you will not be able to access your entries again.\n32 chars max, 10 char minimum\n> ")
+        entry = input("Create Password.\n- If you lose this passphrase, you will not be able to access your entries again\n- 32 character maximum, 10 character minimum\n- Must include letters and numbers\n> ")
         if len(entry) < 10:
             print("Password is too short. 10 characters minimum.")
             continue
-
+        checkpass(entry)
+        if alpha == False or numeric == False:
+            print("Must include letters AND numbers.")
+            continue
         verify = input("Verify passphrase.\n> ")
-
         if entry != verify:
             print("Passwords did not match.")
             continue
-
         break
 
     curlen = len(entry)
@@ -127,18 +128,34 @@ def gen():
     
     print("Password generated.\nNever touch salt file or you will be locked out of your entries.\nProceeding...")
 
+def checkpass(str): 
+    global alpha
+    global numeric
+
+    alpha = False
+    numeric = False 
+
+    for i in str: 
+        if i.isalpha(): 
+            alpha = True
+
+        if i.isdigit(): 
+            numeric = True
+
+    return alpha and numeric 
+
 def ferinit():
     global fkey
     char = open(saltloc, 'r')
     salt = char.read()
- 
+
     while True:
-        login = input("Enter created password. If this is incorrect, you will not be able to decrypt your entries.\n> ")
-        
-        if len(login) < 10:
-            print("Password is too short. 10 characters minimum.")
+        login = input("Enter your password.\n> ")
+        checkpass(login)
+        if len(login) < 10 or alpha == False or numeric == False :
+            print("Invalid entry.")
             continue
-       
+
         verify = input("Verify passphrase.\n> ")
         
         if login != verify:
