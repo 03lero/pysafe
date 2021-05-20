@@ -1,7 +1,9 @@
 basically an encrypted journal program. keep your passwords or diary entries in it.
 
-dependencies: GNU Nano, cryptography (pip install cryptography), curses-menu (pip install curses-menu)
+does not work on windows without curses libs
 
-todo: CLI arguments
+dependencies: GNU Nano (for in-app editing), cryptography (pip install cryptography), curses-menu (pip install curses-menu)
 
-does not work on windows afaik
+todo: 
+
+- implement CLI argument functionality
